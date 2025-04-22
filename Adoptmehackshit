@@ -1,4 +1,4 @@
--- // Hacker-Style Teleport GUI with Manual Pet/Player List \\ --
+-- // Hacker-Style Teleport GUI with Manual Pet/Player List and MAIN Button \\ --
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
@@ -16,13 +16,13 @@ mainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
 mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 mainFrame.BorderSizePixel = 2
 mainFrame.BorderColor3 = Color3.fromRGB(0, 255, 0)
-mainFrame.Active = true -- Required for dragging
-mainFrame.Draggable = true -- Makes the GUI draggable
+mainFrame.Active = true
+mainFrame.Draggable = true
 
 -- Title
 local title = Instance.new("TextLabel", mainFrame)
 title.Size = UDim2.new(1, 0, 0, 35)
-title.Text = "💻 Hacker Teleportation Hub 💻"
+title.Text = "💻 Amode's Teleportation Hub 💻"
 title.TextColor3 = Color3.fromRGB(0, 255, 0)
 title.Font = Enum.Font.Code
 title.TextSize = 20
@@ -32,14 +32,40 @@ title.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
 local feedback = Instance.new("TextLabel", mainFrame)
 feedback.Size = UDim2.new(1, -20, 0, 40)
 feedback.Position = UDim2.new(0, 10, 0, 40)
-feedback.Text = "Waiting for user action..."
+feedback.Text = "(Tracks things in your map try teleporting to MAIN for more options!)"
 feedback.TextColor3 = Color3.fromRGB(0, 255, 0)
 feedback.Font = Enum.Font.Code
 feedback.TextSize = 16
 feedback.BackgroundTransparency = 1
 feedback.TextWrapped = true
 
--- Scroll Frame (List of Teleport Targets)
+-- MAIN Button
+local mainButton = Instance.new("TextButton", mainFrame)
+mainButton.Size = UDim2.new(0, 60, 0, 30)
+mainButton.Position = UDim2.new(0, -70, 0, 40)
+mainButton.AnchorPoint = Vector2.new(1, 0)
+mainButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+mainButton.BorderColor3 = Color3.fromRGB(0, 255, 0)
+mainButton.Text = "MAIN"
+mainButton.TextColor3 = Color3.fromRGB(0, 255, 0)
+mainButton.Font = Enum.Font.Code
+mainButton.TextSize = 16
+mainButton.ZIndex = 10
+
+mainButton.MouseButton1Click:Connect(function()
+	local success, result = pcall(function()
+		return workspace.Interiors["MainMap!Default"].Event.Shop.Visual.BlossomPiles:GetChildren()[14]
+	end)
+
+	if success and result and result:IsA("BasePart") then
+		player.Character:MoveTo(result.Position)
+		feedback.Text = "✅ Teleported to MAIN location."
+	else
+		feedback.Text = "Go through the fucking portal first nigga"
+	end
+end)
+
+-- Scroll Frame
 local scrollFrame = Instance.new("ScrollingFrame", mainFrame)
 scrollFrame.Size = UDim2.new(1, -20, 0, 200)
 scrollFrame.Position = UDim2.new(0, 10, 0, 85)
@@ -49,76 +75,75 @@ scrollFrame.BorderColor3 = Color3.fromRGB(0, 255, 0)
 scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 scrollFrame.ScrollBarThickness = 8
 
--- UI List Layout
 local listLayout = Instance.new("UIListLayout", scrollFrame)
 listLayout.Padding = UDim.new(0, 4)
 listLayout.SortOrder = Enum.SortOrder.Name
 
 -- Feedback helper
 local function updateFeedback(msg)
-    feedback.Text = msg
+	feedback.Text = msg
 end
 
--- Teleport Functions
+-- Teleport Function
 local function teleportToTarget(target)
-    if not target or not target:FindFirstChild("HumanoidRootPart") then
-        updateFeedback("❌ Invalid target.")
-        return
-    end
-    player.Character:MoveTo(target.HumanoidRootPart.Position)
-    updateFeedback("✅ Teleported to: " .. target.Name)
+	if not target or not target:FindFirstChild("HumanoidRootPart") then
+		updateFeedback("❌ Invalid target.")
+		return
+	end
+	player.Character:MoveTo(target.HumanoidRootPart.Position)
+	updateFeedback("✅ Teleported to: " .. target.Name)
 end
 
--- Create Button for Each Entry
+-- Entry Button
 local function createEntry(name, model)
-    local button = Instance.new("TextButton")
-    button.Size = UDim2.new(1, -10, 0, 30)
-    button.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-    button.TextColor3 = Color3.fromRGB(0, 255, 0)
-    button.Font = Enum.Font.Code
-    button.TextSize = 16
-    button.Text = "📍 " .. name
-    button.Parent = scrollFrame
+	local button = Instance.new("TextButton")
+	button.Size = UDim2.new(1, -10, 0, 30)
+	button.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+	button.TextColor3 = Color3.fromRGB(0, 255, 0)
+	button.Font = Enum.Font.Code
+	button.TextSize = 16
+	button.Text = "📍 " .. name
+	button.Parent = scrollFrame
 
-    button.MouseButton1Click:Connect(function()
-        teleportToTarget(model)
-    end)
+	button.MouseButton1Click:Connect(function()
+		teleportToTarget(model)
+	end)
 end
 
 -- Load Players
 local function loadPlayers()
-    local playersLabel = Instance.new("TextLabel", scrollFrame)
-    playersLabel.Size = UDim2.new(1, -10, 0, 30)
-    playersLabel.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-    playersLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
-    playersLabel.Font = Enum.Font.Code
-    playersLabel.TextSize = 16
-    playersLabel.Text = "👤 Players"
-    playersLabel.TextXAlignment = Enum.TextXAlignment.Left
+	local playersLabel = Instance.new("TextLabel", scrollFrame)
+	playersLabel.Size = UDim2.new(1, -10, 0, 30)
+	playersLabel.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+	playersLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+	playersLabel.Font = Enum.Font.Code
+	playersLabel.TextSize = 16
+	playersLabel.Text = "👤 Players"
+	playersLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-            createEntry("[PLAYER] " .. plr.Name, plr.Character)
-        end
-    end
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+			createEntry("[PLAYER] " .. plr.Name, plr.Character)
+		end
+	end
 end
 
 -- Load Pets
 local function loadPets()
-    local petsLabel = Instance.new("TextLabel", scrollFrame)
-    petsLabel.Size = UDim2.new(1, -10, 0, 30)
-    petsLabel.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-    petsLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
-    petsLabel.Font = Enum.Font.Code
-    petsLabel.TextSize = 16
-    petsLabel.Text = "🐾 Pets"
-    petsLabel.TextXAlignment = Enum.TextXAlignment.Left
+	local petsLabel = Instance.new("TextLabel", scrollFrame)
+	petsLabel.Size = UDim2.new(1, -10, 0, 30)
+	petsLabel.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+	petsLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+	petsLabel.Font = Enum.Font.Code
+	petsLabel.TextSize = 16
+	petsLabel.Text = "🐾 Pets"
+	petsLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-    for _, pet in ipairs(petsFolder:GetChildren()) do
-        if pet:IsA("Model") and pet:FindFirstChild("HumanoidRootPart") then
-            createEntry("[PET] " .. pet.Name, pet)
-        end
-    end
+	for _, pet in ipairs(petsFolder:GetChildren()) do
+		if pet:IsA("Model") and pet:FindFirstChild("HumanoidRootPart") then
+			createEntry("[PET] " .. pet.Name, pet)
+		end
+	end
 end
 
 -- Initial Load
@@ -129,42 +154,42 @@ loadPets()
 task.wait(0.1)
 scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
 
--- Listen for new players
+-- Player joins
 Players.PlayerAdded:Connect(function(plr)
-    plr.CharacterAdded:Connect(function(char)
-        task.wait(1)
-        if char:FindFirstChild("HumanoidRootPart") then
-            createEntry("[PLAYER] " .. plr.Name, char)
-            scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
-        end
-    end)
+	plr.CharacterAdded:Connect(function(char)
+		task.wait(1)
+		if char:FindFirstChild("HumanoidRootPart") then
+			createEntry("[PLAYER] " .. plr.Name, char)
+			scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
+		end
+	end)
 end)
 
--- Listen for players leaving
+-- Player leaves
 Players.PlayerRemoving:Connect(function(plr)
-    for _, button in ipairs(scrollFrame:GetChildren()) do
-        if button:IsA("TextButton") and button.Text:find(plr.Name) then
-            button:Destroy()
-            scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
-        end
-    end
+	for _, button in ipairs(scrollFrame:GetChildren()) do
+		if button:IsA("TextButton") and button.Text:find(plr.Name) then
+			button:Destroy()
+			scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
+		end
+	end
 end)
 
--- Listen for pets being removed
+-- Pet removed
 petsFolder.ChildRemoved:Connect(function(child)
-    for _, button in ipairs(scrollFrame:GetChildren()) do
-        if button:IsA("TextButton") and button.Text:find(child.Name) then
-            button:Destroy()
-            scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
-        end
-    end
+	for _, button in ipairs(scrollFrame:GetChildren()) do
+		if button:IsA("TextButton") and button.Text:find(child.Name) then
+			button:Destroy()
+			scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
+		end
+	end
 end)
 
--- Listen for new pets being added
+-- Pet added
 petsFolder.ChildAdded:Connect(function(child)
-    task.wait(1)
-    if child:IsA("Model") and child:FindFirstChild("HumanoidRootPart") then
-        createEntry("[PET] " .. child.Name, child)
-        scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
-    end
+	task.wait(1)
+	if child:IsA("Model") and child:FindFirstChild("HumanoidRootPart") then
+		createEntry("[PET] " .. child.Name, child)
+		scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
+	end
 end)
