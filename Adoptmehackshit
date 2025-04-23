@@ -22,7 +22,7 @@ mainFrame.Draggable = true
 -- Title
 local title = Instance.new("TextLabel", mainFrame)
 title.Size = UDim2.new(1, 0, 0, 35)
-title.Text = "💻 w Teleportation Hub 💻"
+title.Text = "💻 Amode's Teleportation Hub 💻"
 title.TextColor3 = Color3.fromRGB(0, 255, 0)
 title.Font = Enum.Font.Code
 title.TextSize = 20
@@ -32,7 +32,7 @@ title.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
 local feedback = Instance.new("TextLabel", mainFrame)
 feedback.Size = UDim2.new(1, -20, 0, 40)
 feedback.Position = UDim2.new(0, 10, 0, 40)
-feedback.Text = "(Tracks things in your map try teleporting to MAIN for more options!)"
+feedback.Text = "(Tracks things in your map try teleporting to GIFTS for more options!)"
 feedback.TextColor3 = Color3.fromRGB(0, 255, 0)
 feedback.Font = Enum.Font.Code
 feedback.TextSize = 16
@@ -46,7 +46,7 @@ mainButton.Position = UDim2.new(0, -70, 0, 40)
 mainButton.AnchorPoint = Vector2.new(1, 0)
 mainButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 mainButton.BorderColor3 = Color3.fromRGB(0, 255, 0)
-mainButton.Text = "MAIN"
+mainButton.Text = "DONT CLICK"
 mainButton.TextColor3 = Color3.fromRGB(0, 255, 0)
 mainButton.Font = Enum.Font.Code
 mainButton.TextSize = 16
@@ -59,9 +59,9 @@ mainButton.MouseButton1Click:Connect(function()
 
 	if success and result and result:IsA("BasePart") then
 		player.Character:MoveTo(result.Position)
-		feedback.Text = "✅ Teleported to MAIN location."
+		feedback.Text = "✅ Teleported to ???? location."
 	else
-		feedback.Text = "Go through the fucking portal first nigga"
+		feedback.Text = "Whyd you click it even tho I said dont? It broke your pets nigger."
 	end
 end)
 
@@ -193,3 +193,28 @@ petsFolder.ChildAdded:Connect(function(child)
 		scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
 	end
 end)
+-- Update button colors for players and pets
+local function updateButtonColors()
+    for _, button in ipairs(scrollFrame:GetChildren()) do
+        if button:IsA("TextButton") then
+            if button.Text:find("%[PLAYER%]") then
+                button.BackgroundColor3 = Color3.fromRGB(0, 0, 50) -- Blue for players
+            elseif button.Text:find("%[PET%]") then
+                button.BackgroundColor3 = Color3.fromRGB(50, 0, 0) -- Red for pets
+            end
+        end
+    end
+end
+
+-- Reload players and pets when player button is clicked
+mainButton.MouseButton1Click:Connect(function()
+    scrollFrame:ClearAllChildren()
+    loadPlayers()
+    loadPets()
+    updateButtonColors()
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
+    updateFeedback("✅ Refreshed player and pet list.")
+end)
+
+-- Initial color update
+updateButtonColors()
